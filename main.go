@@ -24,6 +24,11 @@ type ArticlesFormData struct {
 	Errors      map[string]string
 }
 
+type Article struct {
+	Title, Body string
+	ID          int64
+}
+
 func initDB()  {
 	var err error
 	config := mysql.Config{
@@ -71,7 +76,27 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request)  {
 func articlesShowHandler(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	fmt.Fprint(w, "文章ID：" + id)
+
+	article := Article{}
+	query := "SELECT * FROM articles WHERE id = ?"
+	err := db.QueryRow(query, id).Scan(&article.ID, &article.Title, &article.Body)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "404文章未找到")
+		} else {
+			checkError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "服务器内部错误")
+		}
+	} else {
+		tmpl, err := template.ParseFiles("resources/views/articles/show.gohtml")
+		checkError(err)
+
+		err = tmpl.Execute(w, article)
+		checkError(err)
+	}
 }
 
 func articlesIndexHandler(w http.ResponseWriter, r *http.Request)  {
@@ -121,14 +146,10 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request)  {
 		}
 
 		templ, err := template.ParseFiles("resources/views/articles/create.gohtml")
-		if err != nil {
-			panic(err)
-		}
+		checkError(err)
 
 		err = templ.Execute(w, data)
-		if err != nil {
-			panic(err)
-		}
+		checkError(err)
 	}
 }
 
