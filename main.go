@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"html/template"
 	"log"
@@ -11,7 +12,6 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-	"github.com/go-sql-driver/mysql"
 )
 
 var router = mux.NewRouter()
@@ -34,10 +34,10 @@ func initDB()  {
 		AllowNativePasswords: true,
 	}
 
-	db, err := sql.Open("mysql", config.FormatDSN())
+	db, err = sql.Open("mysql", config.FormatDSN())
 	checkError(err)
 
-	db.SetMaxOpenConns(100)
+	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(25)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
@@ -165,10 +165,20 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 	})
 }
 
+func createTables() {
+	createArticlesSQL := `CREATE TABLE IF NOT EXISTS articles(
+    id bigint(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    title varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+    body longtext COLLATE utf8mb4_general_ci
+); `
+
+	_, err := db.Exec(createArticlesSQL)
+	checkError(err)
+}
 
 func main() {
 	initDB()
-
+	createTables()
 	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
 	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
