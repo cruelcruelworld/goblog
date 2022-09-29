@@ -102,7 +102,7 @@ func Int64ToString(num int64) string {
 }
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request)  {
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	article, err := getArticleByID(id)
 
@@ -136,13 +136,8 @@ func getArticleByID (id string) (Article, error) {
 	return article, err
 }
 
-func getRouteVariable(parameterName string, r *http.Request) string {
-	vars := mux.Vars(r)
-	return vars[parameterName]
-}
-
 func articlesEditHandler(w http.ResponseWriter, r *http.Request)  {
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	article, err := getArticleByID(id)
 	if err != nil {
@@ -171,7 +166,7 @@ func articlesEditHandler(w http.ResponseWriter, r *http.Request)  {
 }
 
 func articlesUpdateHandler(w http.ResponseWriter, r *http.Request)  {
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	_, err := getArticleByID(id)
 
@@ -303,7 +298,7 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request)  {
 }
 
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	article, err := getArticleByID(id)
 
@@ -417,7 +412,7 @@ func main() {
 
 	route.Initialize()
 	router = route.Router
-	
+
 	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
 	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
