@@ -160,31 +160,6 @@ func validateArticleFormData(title string, body string) map[string]string {
 	return errors
 }
 
-func articlesIndexHandler(w http.ResponseWriter, r *http.Request)  {
-	rows, err := db.Query("SELECT * FROM articles")
-	logger.LogError(err)
-	defer rows.Close()
-
-	var articles []Article
-	for rows.Next() {
-		var article Article
-
-		err := rows.Scan(&article.ID, &article.Title, &article.Body)
-		logger.LogError(err)
-
-		articles = append(articles, article)
-	}
-
-	err = rows.Err()
-	logger.LogError(err)
-
-	tmpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
-	logger.LogError(err)
-
-	err = tmpl.Execute(w, articles)
-	logger.LogError(err)
-}
-
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request)  {
 	err := r.ParseForm()
 	if err != nil {
@@ -328,7 +303,6 @@ func main() {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
 
-	router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
 	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
 	router.HandleFunc("/articles/create", articlesCreateHandler).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
