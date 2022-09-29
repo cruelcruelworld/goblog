@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
+
 func ConnectDB() *gorm.DB {
 
 	var err error
@@ -14,7 +16,7 @@ func ConnectDB() *gorm.DB {
 		DSN: "root:root@tcp(192.168.0.104:3307)/goblog?charset=utf8&parseTime=True&loc=Local",
 	})
 
-	DB, err := gorm.Open(config, &gorm.Config{})
+	DB, err = gorm.Open(config, &gorm.Config{})
 
 	logger.LogError(err)
 
