@@ -160,44 +160,6 @@ func validateArticleFormData(title string, body string) map[string]string {
 	return errors
 }
 
-func articlesStoreHandler(w http.ResponseWriter, r *http.Request)  {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Fprint(w, "请提供正确的数据！")
-		return
-	}
-
-	title := r.PostFormValue("title")
-	body := r.PostFormValue("body")
-	errors := validateArticleFormData(title, body)
-
-	if len(errors) == 0 {
-		lastInsertID, err := saveArticleToDB(title, body)
-		if lastInsertID > 0 {
-			fmt.Fprint(w, "插入成功，ID为" + strconv.FormatInt(lastInsertID, 10))
-		} else {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500服务器内部错误")
-		}
-	} else {
-		storeURL, _ := router.Get("articles.store").URL()
-
-		data := ArticlesFormData{
-			Title:  title,
-			Body:   body,
-			URL:    storeURL,
-			Errors: errors,
-		}
-
-		templ, err := template.ParseFiles("resources/views/articles/create.gohtml")
-		logger.LogError(err)
-
-		err = templ.Execute(w, data)
-		logger.LogError(err)
-	}
-}
-
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
 	id := route.GetRouteVariable("id", r)
 
@@ -231,55 +193,6 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func saveArticleToDB(title string, body string) (int64, error) {
-	var (
-		id int64
-		err error
-		rs sql.Result
-		stmt *sql.Stmt
-	)
-
-	stmt, err = db.Prepare("INSERT INTO articles (title, body) VALUES(?,?)")
-
-	if err != nil {
-		return 0, err
-	}
-
-	defer stmt.Close()
-
-	rs, err = stmt.Exec(title, body)
-	if err != nil {
-		return 0, err
-	}
-
-	if id, err = rs.LastInsertId(); id > 0 {
-		return id, err
-	}
-
-	return 0, err
-}
-
-func articlesCreateHandler(w http.ResponseWriter, r *http.Request)  {
-	storeURL, _ := router.Get("articles.store").URL()
-
-	data := ArticlesFormData{
-		Title:  "",
-		Body:   "",
-		URL:    storeURL,
-		Errors: nil,
-	}
-
-	templ, err := template.ParseFiles("resources/views/articles/create.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	err = templ.Execute(w, data)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func forceHTMLMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "text/html; charset=utf-8")
@@ -303,8 +216,6 @@ func main() {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
 
-	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
-	router.HandleFunc("/articles/create", articlesCreateHandler).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
