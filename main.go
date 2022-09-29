@@ -2,12 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/gorilla/mux"
 	"goblog/bootstrap"
 	"goblog/pkg/database"
 	"goblog/pkg/logger"
-	"goblog/pkg/route"
 	"net/http"
 	"strconv"
 	"strings"
@@ -44,48 +42,6 @@ func (article Article) Link() string {
 	return showURL.String()
 }
 
-func getArticleByID (id string) (Article, error) {
-	article := Article{}
-	query := "SELECT * FROM articles WHERE id = ?"
-
-	err := db.QueryRow(query, id).Scan(&article.ID, &article.Title, &article.Body)
-
-	return article, err
-}
-
-func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
-	id := route.GetRouteVariable("id", r)
-
-	article, err := getArticleByID(id)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "404 文章未找到")
-		} else {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		}
-	} else {
-		rowsAffected, err := article.Delete()
-
-		if err != nil {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		} else {
-			if rowsAffected > 0 {
-				indexURL, _ := router.Get("articles.index").URL()
-				http.Redirect(w, r, indexURL.String(), http.StatusFound)
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-				fmt.Fprint(w, "404 文章未找到")
-			}
-		}
-	}
-}
-
 func forceHTMLMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "text/html; charset=utf-8")
@@ -108,8 +64,6 @@ func main() {
 
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
-
-	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
 
 	router.Use(forceHTMLMiddleware)
 
