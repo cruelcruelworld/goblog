@@ -7,8 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
+	"goblog/pkg/types"
 	"html/template"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -76,12 +76,6 @@ func initDB()  {
 	logger.LogError(err)
 }
 
-func checkError(err error)  {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func homeHandler(w http.ResponseWriter, r *http.Request)  {
 	fmt.Fprint(w, "<h1>Hello, 这里是goblog!</h1>")
 
@@ -96,10 +90,6 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request)  {
 	w.WriteHeader(http.StatusNotFound)
 	fmt.Fprint(w, "<h1>请求页面未找到 :(</h1>"+
 			"<p>如有疑惑，请联系我们。</p>")
-}
-
-func Int64ToString(num int64) string {
-	return strconv.FormatInt(num, 10)
 }
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request)  {
@@ -119,7 +109,7 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request)  {
 	} else {
 		tmpl, err := template.New("show.gohtml").Funcs(template.FuncMap{
 			"RouteName2URL": route.Name2URL,
-			"Int64ToString": Int64ToString,
+			"Int64ToString": types.Int64ToString,
 		}).ParseFiles("resources/views/articles/show.gohtml")
 		logger.LogError(err)
 
