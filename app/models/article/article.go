@@ -7,9 +7,8 @@ import (
 )
 
 type Article struct {
-	models.BaseModel
 	Title, Body string
-	ID          uint64
+	models.BaseModel
 }
 
 func (article Article) Link() string {
