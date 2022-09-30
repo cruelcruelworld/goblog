@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"goblog/app/models/user"
 	"goblog/app/requests"
+	"goblog/pkg/auth"
 	"goblog/pkg/view"
 	"net/http"
 )
@@ -43,9 +44,20 @@ func (*AuthController) DoRegister(w http.ResponseWriter, r *http.Request) {
 
 func (*AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
-	view.RenderSimple(w, view.D{}, "login.login")
+	view.RenderSimple(w, view.D{}, "auth.login")
 }
 
 func (*AuthController) DoLogin(w http.ResponseWriter, r *http.Request) {
+	email := r.PostFormValue("email")
+	password := r.PostFormValue("password")
+	if err := auth.Attempt(email, password); err == nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+	} else {
+		view.RenderSimple(w, view.D{
+			"Error":    err.Error(),
+			"Email":    email,
+			"Password": password,
+		}, "auth.login")
+	}
 
 }
