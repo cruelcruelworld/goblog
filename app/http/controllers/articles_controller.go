@@ -13,10 +13,9 @@ import (
 )
 
 type ArticlesController struct {
-
 }
 
-func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 	id := route.GetRouteVariable("id", r)
 
 	_article, err := article.Get(id)
@@ -35,7 +34,7 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 	articles, err := article.GetAll()
 
 	if err != nil {
@@ -47,21 +46,21 @@ func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	data := view.D{
-		"Title":  "",
-		"Body":   "",
+		"Title": "",
+		"Body":  "",
 		"Errors": map[string]string{
-			"title" : "",
-			"body" : "",
+			"title": "",
+			"body":  "",
 		},
 	}
 
 	view.Render(w, data, "articles.create", "articles._form_field")
 }
 
-func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Fprint(w, "请提供正确的数据！")
@@ -73,13 +72,13 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request)  {
 	errors := validateArticleFormData(title, body)
 
 	if len(errors) == 0 {
-		_article := article.Article {
+		_article := article.Article{
 			Title: title,
-			Body: body,
+			Body:  body,
 		}
 		err := _article.Create()
 		if _article.ID > 0 {
-			fmt.Fprint(w, "插入成功，ID为" + strconv.FormatUint(_article.ID, 10))
+			fmt.Fprint(w, "插入成功，ID为"+strconv.FormatUint(_article.ID, 10))
 		} else {
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -96,7 +95,7 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 	id := route.GetRouteVariable("id", r)
 
 	_article, err := article.Get(id)
@@ -111,19 +110,19 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 		}
 	} else {
 		data := view.D{
-			"Title":  _article.Title,
-			"Body":   _article.Body,
+			"Title":   _article.Title,
+			"Body":    _article.Body,
 			"Article": _article,
 			"Errors": map[string]string{
-				"title" : "",
-				"body" : "",
+				"title": "",
+				"body":  "",
 			},
 		}
 		view.Render(w, data, "articles.edit", "articles._form_field")
 	}
 }
 
-func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 	id := route.GetRouteVariable("id", r)
 
 	_article, err := article.Get(id)
@@ -161,10 +160,10 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 			}
 		} else {
 			data := view.D{
-				"Title":  title,
-				"Body":   body,
-				"Article":  _article,
-				"Errors": errors,
+				"Title":   title,
+				"Body":    body,
+				"Article": _article,
+				"Errors":  errors,
 			}
 
 			view.Render(w, data, "articles.edit", "articles._form_field")
@@ -172,7 +171,7 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request) {
 	id := route.GetRouteVariable("id", r)
 
 	_article, err := article.Get(id)
@@ -195,7 +194,7 @@ func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request)  {
 			fmt.Fprint(w, "500 服务器内部错误")
 		} else {
 			if rowsAffected > 0 {
-				indexURL:= route.Name2URL("articles.index")
+				indexURL := route.Name2URL("articles.index")
 				http.Redirect(w, r, indexURL, http.StatusFound)
 			} else {
 				w.WriteHeader(http.StatusNotFound)
