@@ -10,7 +10,7 @@ type PagesController struct {
 }
 
 func (*PagesController) About(w http.ResponseWriter, r *http.Request) {
-	var data view.D
+	var data = view.D{}
 	view.Render(w, data, "articles.about")
 }
 
