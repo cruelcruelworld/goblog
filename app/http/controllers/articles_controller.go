@@ -3,13 +3,12 @@ package controllers
 import (
 	"fmt"
 	"goblog/app/models/article"
+	"goblog/app/requests"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/view"
 	"gorm.io/gorm"
 	"net/http"
-	"strconv"
-	"unicode/utf8"
 )
 
 type ArticlesController struct {
@@ -61,24 +60,19 @@ func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Fprint(w, "请提供正确的数据！")
-		return
-	}
-
 	title := r.PostFormValue("title")
 	body := r.PostFormValue("body")
-	errors := validateArticleFormData(title, body)
 
+	_article := article.Article{
+		Title: title,
+		Body:  body,
+	}
+
+	errors := requests.ValidateArticleForm(_article)
 	if len(errors) == 0 {
-		_article := article.Article{
-			Title: title,
-			Body:  body,
-		}
 		err := _article.Create()
 		if _article.ID > 0 {
-			fmt.Fprint(w, "插入成功，ID为"+strconv.FormatUint(_article.ID, 10))
+			http.Redirect(w, r, route.Name2URL("articles.show", "id", _article.GetStringID()), http.StatusFound)
 		} else {
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -110,8 +104,6 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		data := view.D{
-			"Title":   _article.Title,
-			"Body":    _article.Body,
 			"Article": _article,
 		}
 		view.Render(w, data, "articles.edit", "articles._form_field")
@@ -133,13 +125,11 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, "服务器内部错误")
 		}
 	} else {
-		title := r.PostFormValue("title")
-		body := r.PostFormValue("body")
-		errors := validateArticleFormData(title, body)
+		_article.Title = r.PostFormValue("title")
+		_article.Body = r.PostFormValue("body")
+		errors := requests.ValidateArticleForm(_article)
 
 		if len(errors) == 0 {
-			_article.Title = title
-			_article.Body = body
 
 			rs, err := _article.Update()
 			if err != nil {
@@ -156,8 +146,6 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			data := view.D{
-				"Title":   title,
-				"Body":    body,
 				"Article": _article,
 				"Errors":  errors,
 			}
@@ -198,22 +186,4 @@ func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-}
-
-func validateArticleFormData(title string, body string) map[string]string {
-	errors := make(map[string]string)
-
-	if title == "" {
-		errors["title"] = "标题不能为空"
-	} else if utf8.RuneCountInString(title) < 3 || utf8.RuneCountInString(title) > 40 {
-		errors["title"] = "标题长度需介于 3-40"
-	}
-
-	if body == "" {
-		errors["title"] = "内容不能为空"
-	} else if utf8.RuneCountInString(body) < 10 {
-		errors["body"] = "内容长度需大于或等于 10 个字节"
-	}
-
-	return errors
 }
