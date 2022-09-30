@@ -15,7 +15,7 @@ func (*PagesController) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*PagesController) About(w http.ResponseWriter, r *http.Request) {
-	var data interface{}
+	var data view.D
 	view.Render(w, data, "articles.about")
 }
 
