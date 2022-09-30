@@ -35,6 +35,7 @@ func Get(key string) interface{} {
 
 func Forget(key string)  {
 	delete(Session.Values, key)
+	Save()
 }
 
 func Flush()  {

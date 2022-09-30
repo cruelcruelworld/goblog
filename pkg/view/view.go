@@ -22,7 +22,6 @@ func RenderSimple(w io.Writer, data D, tplfiles ...string)  {
 
 func RenderTemplate(w io.Writer, name string, data D, tplfiles ...string)  {
 	data["isLogined"] = auth.Check()
-
 	newFiles := getTemplateFiles(tplfiles...)
 
 	tmpl, err := template.New("").Funcs(template.FuncMap{
