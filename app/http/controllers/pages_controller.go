@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"goblog/pkg/view"
 	"net/http"
 )
 
@@ -15,8 +16,8 @@ func (*PagesController) Home(w http.ResponseWriter, r *http.Request)  {
 }
 
 func (*PagesController) About(w http.ResponseWriter, r *http.Request)  {
-	fmt.Fprint(w,  "此博客是用以记录编程笔记，如您有反馈或建议，请联系 "+
-		"<a href=\"mailto:363201375@qq.com\">363201375@qq.com</a>")
+	var data interface{}
+	view.Render(w, data, "articles.about")
 }
 
 func (*PagesController) NotFound(w http.ResponseWriter, r *http.Request)  {
