@@ -51,10 +51,6 @@ func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
 	data := view.D{
 		"Title": "",
 		"Body":  "",
-		"Errors": map[string]string{
-			"title": "",
-			"body":  "",
-		},
 	}
 
 	view.Render(w, data, "articles.create", "articles._form_field")
@@ -113,10 +109,6 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 			"Title":   _article.Title,
 			"Body":    _article.Body,
 			"Article": _article,
-			"Errors": map[string]string{
-				"title": "",
-				"body":  "",
-			},
 		}
 		view.Render(w, data, "articles.edit", "articles._form_field")
 	}
