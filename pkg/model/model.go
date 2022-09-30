@@ -14,7 +14,7 @@ func ConnectDB() *gorm.DB {
 	var err error
 
 	config := mysql.New(mysql.Config{
-		DSN: "root:root@tcp(192.168.0.104:3307)/goblog?charset=utf8&parseTime=True&loc=Local",
+		DSN: "root:root@tcp(192.168.0.108:3307)/goblog?charset=utf8&parseTime=True&loc=Local",
 	})
 
 	DB, err = gorm.Open(config, &gorm.Config{
