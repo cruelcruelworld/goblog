@@ -2,6 +2,7 @@ package view
 
 import (
 	"goblog/pkg/auth"
+	"goblog/pkg/flash"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"html/template"
@@ -22,6 +23,8 @@ func RenderSimple(w io.Writer, data D, tplfiles ...string)  {
 
 func RenderTemplate(w io.Writer, name string, data D, tplfiles ...string)  {
 	data["isLogined"] = auth.Check()
+	data["loginUser"] = auth.User()
+	data["flash"] = flash.All()
 	newFiles := getTemplateFiles(tplfiles...)
 
 	tmpl, err := template.New("").Funcs(template.FuncMap{

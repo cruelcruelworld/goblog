@@ -9,11 +9,6 @@ import (
 type PagesController struct {
 }
 
-func (*PagesController) Home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "<h1>Hello, 这里是goblog!</h1>")
-
-}
-
 func (*PagesController) About(w http.ResponseWriter, r *http.Request) {
 	var data view.D
 	view.Render(w, data, "articles.about")
