@@ -32,13 +32,14 @@ func (ac *ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
-	articles, err := article.GetAll()
+	articles, viewData, err := article.GetAll(r, 10)
 
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
 	} else {
 		view.Render(w, view.D{
 			"Articles" : articles,
+			"PageData": viewData,
 		}, "articles.index", "articles._article_meta")
 	}
 }
