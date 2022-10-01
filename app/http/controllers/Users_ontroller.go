@@ -12,10 +12,10 @@ import (
 )
 
 type UserController struct {
-
+	BaseController
 }
 
-func (*UserController) Show(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) Show(w http.ResponseWriter, r *http.Request) {
 	id := route.GetRouteVariable("id", r)
 
 	_user, err := user.Get(id)
@@ -32,9 +32,7 @@ func (*UserController) Show(w http.ResponseWriter, r *http.Request) {
 	} else {
 		articles, err := article.GetByUserID(_user.ID)
 		if err != nil {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
+			uc.ResponseForSQLError(w, err)
 		} else {
 			data := view.D{
 				"Articles": articles,
