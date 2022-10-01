@@ -34,5 +34,9 @@ func RegisterWebRoutes(r *mux.Router)  {
 	uc := new(controllers.UserController)
 	r.HandleFunc("/users/{id:[0-9]+}", uc.Show).Methods("GET").Name("users.show")
 
+	cc := new(controllers.CategoriesController)
+	r.HandleFunc("/categories/create", cc.Create).Methods("GET").Name("categories.create")
+	r.HandleFunc("/categories/store", cc.Store).Methods("POST").Name("categories.store")
+
 	r.Use(middlewares.StartSession)
 }
