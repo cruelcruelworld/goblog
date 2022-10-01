@@ -14,11 +14,11 @@ type CategoriesController struct {
 
 }
 
-func (CategoriesController) Create(w http.ResponseWriter, r *http.Request)  {
+func (*CategoriesController) Create(w http.ResponseWriter, r *http.Request)  {
 	view.Render(w, view.D{}, "categories.create")
 }
 
-func (CategoriesController) Store(w http.ResponseWriter, r *http.Request)  {
+func (*CategoriesController) Store(w http.ResponseWriter, r *http.Request)  {
 	name := r.PostFormValue("name")
 	var _category category.Category
 	_category.Name = name
@@ -40,4 +40,8 @@ func (CategoriesController) Store(w http.ResponseWriter, r *http.Request)  {
 			"Errors": errors,
 		}, "categories.create")
 	}
+}
+
+func (*CategoriesController) Show(w http.ResponseWriter, r *http.Request)  {
+
 }
