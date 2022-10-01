@@ -1,6 +1,9 @@
 package user
 
-import "goblog/app/models"
+import (
+	"goblog/app/models"
+	"goblog/pkg/route"
+)
 
 type User struct {
 	models.BaseModel
@@ -13,5 +16,5 @@ type User struct {
 }
 
 func (user User) Link() string {
-	return ""
+	return route.Name2URL("users.show", "id", user.GetStringID())
 }
