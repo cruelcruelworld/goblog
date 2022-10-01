@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"goblog/app/models/article"
 	"goblog/app/requests"
+	"goblog/pkg/auth"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/view"
@@ -66,6 +67,7 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 	_article := article.Article{
 		Title: title,
 		Body:  body,
+		UserID: auth.User().ID,
 	}
 
 	errors := requests.ValidateArticleForm(_article)
@@ -80,8 +82,7 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		data := view.D{
-			"Title":  title,
-			"Body":   body,
+			"Article": _article,
 			"Errors": errors,
 		}
 
